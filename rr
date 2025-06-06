@@ -1,0 +1,138 @@
+#include <stdio.h>
+#include <limits.h>
+
+void calculateRoundRobin(int processes[], int n, int arrival_time[], 
+                        int burst_time[], int quantum) {
+    int completion_time[10], turnaround_time[10], waiting_time[10];
+    int remaining_time[10], is_completed[10] = {0}, current_time = 0;
+    int completed = 0, queue[100], front = 0, rear = 0;
+    float total_turnaround_time = 0, total_waiting_time = 0;
+
+    // Initialize remaining time array
+for(int i = 0; i< n; i++) {
+remaining_time[i] = burst_time[i];
+    }
+
+    // Add first process to queue if it arrives at 0
+    if(arrival_time[0] == 0) {
+        queue[rear] = 0;
+        rear++;
+    }
+
+printf("\nGantt Chart:\n");
+
+while(completed != n) {
+        int current_process = -1;
+
+        // If queue is empty, find next process to arrive
+if(front == rear) {
+            int min_arrival = INT_MAX;
+for(int i = 0; i< n; i++) {
+                if(!is_completed[i] &&arrival_time[i] <min_arrival&&arrival_time[i] >current_time) {
+min_arrival = arrival_time[i];
+                }
+            }
+if(min_arrival != INT_MAX) {
+current_time = min_arrival;
+            }
+
+            // Add all processes that have arrived to queue
+for(int i = 0; i< n; i++) {
+                if(!is_completed[i] &&arrival_time[i] <= current_time&&
+arrival_time[i] <= min_arrival) {
+                    queue[rear] = i;
+                    rear++;
+                }
+            }
+
+if(front == rear) {
+printf("| IDLE ");
+current_time++;
+                continue;
+            }
+        }
+
+current_process = queue[front];
+        front++;
+
+        // Calculate time slice for current process
+        int time_slice = (remaining_time[current_process] < quantum) ?
+remaining_time[current_process] : quantum;
+
+        // Execute process for time quantum
+for(int i = 0; i<time_slice; i++) {
+printf("| P%d ", processes[current_process]);
+remaining_time[current_process]--;
+current_time++;
+
+            // Add newly arrived processes to queue
+for(int j = 0; j < n; j++) {
+                if(!is_completed[j] &&arrival_time[j] == current_time&& j != current_process) {
+                    queue[rear] = j;
+                    rear++;
+                }
+            }
+        }
+
+        // If process is not completed, add it back to queue
+        if(remaining_time[current_process] > 0) {
+            queue[rear] = current_process;
+            rear++;
+        }
+        // If process is completed, update completion time
+        else {
+is_completed[current_process] = 1;
+completion_time[current_process] = current_time;
+turnaround_time[current_process] = completion_time[current_process] - 
+arrival_time[current_process];
+waiting_time[current_process] = turnaround_time[current_process] - 
+burst_time[current_process];
+
+total_turnaround_time += turnaround_time[current_process];
+total_waiting_time += waiting_time[current_process];
+            completed++;
+        }
+    }
+
+printf("|\n\n");
+
+    // Print process details
+printf("\nProcess Details:\n");
+printf("PID\tAT\tBT\tCT\tTAT\tWT\n");
+
+for(int i = 0; i< n; i++) {
+printf("%d\t%d\t%d\t%d\t%d\t%d\n", 
+            processes[i], 
+arrival_time[i], 
+burst_time[i], 
+completion_time[i], 
+turnaround_time[i], 
+waiting_time[i]);
+    }
+
+printf("\nAverage Turnaround Time: %.2f", total_turnaround_time/n);
+printf("\nAverage Waiting Time: %.2f\n", total_waiting_time/n);
+}
+
+int main() {
+    int processes[10], arrival_time[10], burst_time[10], n, quantum;
+
+printf("Enter the number of processes (maximum 10): ");
+scanf("%d", &n);
+
+printf("Enter time quantum: ");
+scanf("%d", &quantum);
+
+    // Input process details
+for(int i = 0; i< n; i++) {
+        processes[i] = i + 1;
+printf("\nEnter details for Process %d:\n", i + 1);
+printf("Arrival Time: ");
+scanf("%d", &arrival_time[i]);
+printf("Burst Time: ");
+scanf("%d", &burst_time[i]);
+    }
+
+calculateRoundRobin(processes, n, arrival_time, burst_time, quantum);
+    return 0;
+}
