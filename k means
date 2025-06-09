@@ -1,0 +1,44 @@
+import numpy as np
+from sklearn.cluster import KMeans
+from sklearn.preprocessing import StandardScaler
+# Given data
+data = [
+    [1.713, 1.586, 0],
+    [0.180, 1.786, 1],
+    [0.353, 1.240, 1],
+    [0.940, 1.566, 0],
+    [1.486, 0.759, 1],
+    [1.266, 1.106, 0],
+    [1.540, 0.419, 1],
+    [0.459, 1.799, 1],
+    [0.773, 0.186, 1]
+]
+# Separate features (VAR1, VAR2) and labels (CLASS)
+features = np.array([[row[0], row[1]] for row in data])
+labels = np.array([row[2] for row in data])
+# Standardize the features for better clustering
+scaler = StandardScaler()
+features_scaled = scaler.fit_transform(features)
+# Apply k-means clustering with 3 clusters
+kmeans = KMeans(n_clusters=3, random_state=42)
+kmeans.fit(features_scaled)
+ 
+# New data point to classify
+new_point = np.array([[0.906, 0.606]])
+new_point_scaled = scaler.transform(new_point)
+# Predict the cluster for the new data point
+predicted_cluster = kmeans.predict(new_point_scaled)
+# Display the cluster centroids and prediction
+print("Cluster centroids (scaled):")
+print(kmeans.cluster_centers_)
+print(f"Predicted cluster for the new point {new_point}: {predicted_cluster[0]}")
+ 
+# Assign classification based on the majority class in the predicted cluster
+cluster_labels = kmeans.labels_
+cluster_classes = {}
+ for cluster in range(3):
+   cluster_indices = np.where(cluster_labels == cluster)[0]
+   cluster_class_counts = np.bincount(labels[cluster_indices])
+   cluster_classes[cluster] = np.argmax(cluster_class_counts)
+   predicted_class = cluster_classes[predicted_cluster[0]]
+print(f"Predicted classification for the new point: {predicted_class}")
