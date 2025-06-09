@@ -1,0 +1,11 @@
+#include<stdio.h>
+voidmain()
+{
+intp,ps,i;int*sa;clrscr();
+printf("Enterhowmanypages:");scanf("%d",&np);
+printf("Enterpagesize:");scanf("%d",&ps);for(i=0;i<np;i++)
+{
+sa[i]=(int)malloc(ps);
+printf(“Page%daddressis%d\n",i,sa[i]);
+}
+getch();
