@@ -1,11 +1,20 @@
-#include<stdio.h>
-voidmain()
-{
-intp,ps,i;int*sa;clrscr();
-printf("Enterhowmanypages:");scanf("%d",&np);
-printf("Enterpagesize:");scanf("%d",&ps);for(i=0;i<np;i++)
-{
-sa[i]=(int)malloc(ps);
-printf(“Page%daddressis%d\n",i,sa[i]);
+#include <stdio.h>
+#include <stdlib.h>
+int main() {
+    int np, ps, i;
+    int **sa;
+    printf("Enter how many pages: ");
+    scanf("%d", &np);
+    printf("Enter page size: ");
+    scanf("%d", &ps);
+    sa = (int **)malloc(np * sizeof(int *));
+    for (i = 0; i < np; i++) {
+        sa[i] = (int *)malloc(ps * sizeof(int));
+        printf("Page %d address is %p\n", i, (void *)sa[i]);
+    }
+    for (i = 0; i < np; i++) {
+        free(sa[i]);
+    }
+    free(sa);
+    return 0;
 }
-getch();
